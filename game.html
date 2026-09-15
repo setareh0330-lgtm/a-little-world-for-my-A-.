@@ -5,19 +5,27 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>20:54 — Game</title>
 <style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#17152b}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#17152b;touch-action:none}
 body{font-family:Arial,sans-serif}
-canvas{display:block;width:100vw;height:100vh;image-rendering:pixelated}
+canvas{display:block;width:100vw;height:100vh;image-rendering:pixelated;touch-action:none}
 #ui{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2;background:#241d3ddd;border:2px solid #9b78aa;border-radius:8px;padding:8px 13px;color:#fff;text-align:center}
-#help{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:2;background:#241d3ddd;border:2px solid #6f587e;border-radius:8px;padding:7px 12px;color:#fff;text-align:center;font-size:13px}
+#help{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:2;background:#241d3ddd;border:2px solid #6f587e;border-radius:8px;padding:7px 12px;color:#fff;text-align:center;font-size:13px;white-space:nowrap}
+#joystick{position:fixed;left:22px;bottom:55px;width:112px;height:112px;border-radius:50%;background:#241d3dcc;border:3px solid #9b78aa;z-index:3;touch-action:none;box-sizing:border-box}
+#stick{position:absolute;left:50%;top:50%;width:46px;height:46px;margin-left:-23px;margin-top:-23px;border-radius:50%;background:#c49bd4;border:2px solid #f0d9f4;box-sizing:border-box}
+@media(min-width:700px){#joystick{display:none}}
 </style>
 </head>
 <body>
 <canvas id="game" width="640" height="360"></canvas>
 <div id="ui">🌙 20:54 · نکو را پیدا کن</div>
-<div id="help">حرکت: WASD یا کلیدهای جهت‌دار</div>
+<div id="help">حرکت: با جوی‌استیک پایین صفحه یا WASD</div>
+<div id="joystick" aria-label="کنترل حرکت"><div id="stick"></div></div>
 <script>
 var c=document.getElementById("game"),x=c.getContext("2d"),p={x:320,y:210},cat={x:500,y:120,found:false},k={};
+var joy={x:0,y:0},dragging=false,pad=document.getElementById("joystick"),stick=document.getElementById("stick");
+function setJoy(e){var q=pad.getBoundingClientRect(),cx=q.left+q.width/2,cy=q.top+q.height/2,dx=e.clientX-cx,dy=e.clientY-cy,max=34,len=Math.hypot(dx,dy);if(len>max){dx=dx/len*max;dy=dy/len*max}joy.x=dx/max;joy.y=dy/max;stick.style.transform="translate("+dx+"px,"+dy+"px")}
+function endJoy(){dragging=false;joy.x=0;joy.y=0;stick.style.transform="translate(0,0)"}
+pad.addEventListener("pointerdown",function(e){dragging=true;pad.setPointerCapture(e.pointerId);setJoy(e)});pad.addEventListener("pointermove",function(e){if(dragging)setJoy(e)});pad.addEventListener("pointerup",endJoy);pad.addEventListener("pointercancel",endJoy);
 addEventListener("keydown",function(e){k[e.key]=1;k[e.key.toLowerCase()]=1});
 addEventListener("keyup",function(e){k[e.key]=0;k[e.key.toLowerCase()]=0});
 function r(a,b,w,h,z){x.fillStyle=z;x.fillRect(a,b,w,h)}
@@ -29,6 +37,7 @@ function update(){
  var dx=0,dy=0;
  if(k.ArrowLeft||k.a)dx--;if(k.ArrowRight||k.d)dx++;
  if(k.ArrowUp||k.w)dy--;if(k.ArrowDown||k.s)dy++;
+ dx+=joy.x;dy+=joy.y;var len=Math.hypot(dx,dy);if(len>1){dx/=len;dy/=len}
  p.x=Math.max(25,Math.min(615,p.x+dx*2.5));p.y=Math.max(55,Math.min(335,p.y+dy*2.5));
  if(!cat.found&&Math.hypot(p.x-cat.x,p.y-cat.y)<35){cat.found=true;document.getElementById("ui").textContent="🐈 نکو رو پیدا کردی!  ·  بعدی: شیر → خانه → 2054"}
 }
