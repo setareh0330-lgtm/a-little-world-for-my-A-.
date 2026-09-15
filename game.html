@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>20:54 — Game</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#17152b}
+body{font-family:Arial,sans-serif}
+canvas{display:block;width:100vw;height:100vh;image-rendering:pixelated}
+#ui{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2;background:#241d3ddd;border:2px solid #9b78aa;border-radius:8px;padding:8px 13px;color:#fff;text-align:center}
+#help{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);z-index:2;background:#241d3ddd;border:2px solid #6f587e;border-radius:8px;padding:7px 12px;color:#fff;text-align:center;font-size:13px}
+</style>
+</head>
+<body>
+<canvas id="game" width="640" height="360"></canvas>
+<div id="ui">🌙 20:54 · نکو را پیدا کن</div>
+<div id="help">حرکت: WASD یا کلیدهای جهت‌دار</div>
+<script>
+var c=document.getElementById("game"),x=c.getContext("2d"),p={x:320,y:210},cat={x:500,y:120,found:false},k={};
+addEventListener("keydown",function(e){k[e.key]=1;k[e.key.toLowerCase()]=1});
+addEventListener("keyup",function(e){k[e.key]=0;k[e.key.toLowerCase()]=0});
+function r(a,b,w,h,z){x.fillStyle=z;x.fillRect(a,b,w,h)}
+function tree(a,b){r(a-12,b+18,24,18,"#694638");r(a-25,b-2,50,27,"#3f765e");r(a-18,b-15,36,20,"#528969");r(a-8,b-23,16,12,"#679b73")}
+function flower(a,b,z){r(a,b,4,4,z);r(a+4,b-4,4,4,z);r(a+8,b,4,4,z);r(a+4,b+4,4,4,z);r(a+4,b,4,4,"#f6d477")}
+function hero(){var a=p.x,b=p.y;r(a-12,b+20,24,6,"#40314b");r(a-14,b-13,28,20,"#4a2b48");r(a-11,b-5,22,19,"#f1c2a8");r(a-7,b+1,4,5,"#292033");r(a+3,b+1,4,5,"#292033");r(a-13,b+14,26,20,"#8a6ab0");r(a-10,b+34,7,8,"#30233a");r(a+3,b+34,7,8,"#30233a")}
+function neko(){var a=cat.x,b=cat.y;r(a-13,b+12,26,7,"#40314b");r(a-14,b-8,28,24,"#a87855");r(a-14,b-15,9,9,"#a87855");r(a+5,b-15,9,9,"#a87855");r(a-7,b-2,4,4,"#211b2c");r(a+4,b-2,4,4,"#211b2c")}
+function update(){
+ var dx=0,dy=0;
+ if(k.ArrowLeft||k.a)dx--;if(k.ArrowRight||k.d)dx++;
+ if(k.ArrowUp||k.w)dy--;if(k.ArrowDown||k.s)dy++;
+ p.x=Math.max(25,Math.min(615,p.x+dx*2.5));p.y=Math.max(55,Math.min(335,p.y+dy*2.5));
+ if(!cat.found&&Math.hypot(p.x-cat.x,p.y-cat.y)<35){cat.found=true;document.getElementById("ui").textContent="🐈 نکو رو پیدا کردی!  ·  بعدی: شیر → خانه → 2054"}
+}
+function draw(){
+ var g=x.createLinearGradient(0,0,0,360);g.addColorStop(0,"#bd76a5");g.addColorStop(.45,"#715a91");g.addColorStop(.46,"#405f67");g.addColorStop(1,"#294347");x.fillStyle=g;x.fillRect(0,0,640,360);
+ r(55,52,85,6,"#df9bb7");r(80,44,45,7,"#df9bb7");r(500,42,90,6,"#df9bb7");r(520,34,45,7,"#df9bb7");r(545,72,15,15,"#f8dfaf");
+ x.fillStyle="#6a5858";x.beginPath();x.moveTo(285,360);x.lineTo(350,360);x.lineTo(380,185);x.lineTo(315,185);x.closePath();x.fill();
+ for(var i=0;i<45;i++){var a=(i*97)%640,b=60+(i*53)%290;r(a,b,3,5,i%2?"#416d58":"#4d795e")}
+ [[70,100],[160,155],[270,75],[390,115],[490,85],[585,110],[105,290],[220,260],[350,305],[470,270],[575,290]].forEach(function(t){tree(t[0],t[1])});
+ flower(50,230,"#f2a9bd");flower(430,220,"#e6b7d5");flower(280,145,"#f3d38a");
+ if(!cat.found)neko();hero()
+}
+function loop(){update();draw();requestAnimationFrame(loop)}
+draw();loop();
+</script>
+</body>
+</html>
